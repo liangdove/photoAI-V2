@@ -1,5 +1,5 @@
 # 简介 #
-本项目基于faceai开源项目，实现了Django网站
+本项目基于faceai开源项目，实现了Django网站。
 v4版本，增加了几个功能，需安装pythorch与tensorflow，调用了魔搭社区的预训练模型
 
 # 功能 #
