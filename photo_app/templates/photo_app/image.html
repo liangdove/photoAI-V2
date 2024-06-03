@@ -1,0 +1,315 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- 头部内容 -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>所有照片</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* CSS 样式部分 */
+        .sidebar {
+            width: 250px; /* 导航栏宽度 */
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            padding-top: 3.5rem;
+            padding-left: 0;
+            background-color: #f8f9fa; /* 淡灰色背景 */
+            overflow-y: auto; /* 垂直滚动条 */
+        }
+        .content {
+            margin-left: 250px; /* 侧边栏宽度 */
+            padding: 20px;
+            overflow: hidden; /* 禁止内容溢出 */
+            display: flex; /* 使用 Flex 布局 */
+            justify-content: center; /* 主轴居中对齐 */
+            align-items: center; /* 交叉轴居中对齐 */
+        }
+        @media (max-width: 768px) {
+            .content {
+                margin-left: 0;
+            }
+        }
+        /* 照片列表样式 */
+        .photo-list {
+            width: 220px; /* 调整图片列表宽度 */
+            position: fixed; /* 固定位置 */
+            top: 0; /* 位于顶部 */
+            right: 0; /* 位于右侧 */
+            padding: 20px; /* 内边距 */
+            background-color: #fff; /* 白色背景 */
+            border-left: 1px solid #ccc; /* 左边框 */
+            height: 100vh; /* 充满整个视窗 */
+            overflow-y: auto; /* 垂直滚动条 */
+            box-shadow: -2px 0 5px rgba(0,0,0,0.1); /* 添加阴影效果 */
+        }
+
+        /* 照片列表中的照片样式 */
+        .photo-list img {
+            width: 100%;
+            cursor: pointer;
+            margin-bottom: 10px;
+            border-radius: 5px; /* 添加圆角 */
+            transition: transform 0.3s, box-shadow 0.3s; /* 添加过渡效果 */
+        }
+        .photo-list img:hover {
+            transform: scale(1.05); /* 鼠标悬停时放大 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 添加阴影效果 */
+        }
+
+        /* 大图显示区域样式 */
+        .photo-display {
+            overflow: hidden;
+            max-width: 70%; /* 最大宽度为 70% */
+            max-height: 70%; /* 最大高度为 70% */
+            position: fixed;
+            top: 50%; /* 位于垂直方向的中央 */
+            left: 50%; /* 位于水平方向的中央 */
+            transform: translate(-50%, -50%); /* 使用 transform 属性调整居中 */
+            z-index: 2; /* 确保在顶层显示 */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0,0,0,0.7); /* 添加背景色及透明度 */
+            padding: 20px;
+            border-radius: 10px; /* 添加圆角 */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* 添加阴影效果 */
+        }
+
+        /* 大图样式 */
+        .photo-display img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            transition: transform 0.2s ease; /* 添加平滑过渡效果 */
+            cursor: grab; /* 显示抓手光标 */
+        }
+        .logout-link {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        .navbar-brand {
+            font-size: 2rem; /* 增大字体大小 */
+            font-weight: bold;
+            color: #007bff; /* 蓝色文字 */
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 32px; /* 调整图标大小 */
+            height: 32px; /* 调整图标大小 */
+            margin-right: 8px; /* 图标与文字之间的间距 */
+        }
+
+        /* 按钮样式 */
+        .photo-actions {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .photo-actions .btn {
+            font-size: 0.8rem;
+            padding: 0.375rem 0.75rem;
+        }
+        .btn-outline-danger {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff;
+        }
+        .btn-outline-primary {
+            border-color: #007bff;
+            color: #007bff;
+        }
+        .btn-outline-primary:hover {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="sidebar d-flex flex-column flex-shrink-0 p-3 bg-light">
+        <div class="navbar-brand">
+            <img src="{% static 'png/tourism_strategy.png' %}" alt="智能相机图标">
+            <span>智能相机</span>
+        </div>
+        <hr>
+        <ul class="nav nav-pills flex-column mb-auto">
+            <li class="nav-item">
+                <a href="{% url 'index' %}" class="nav-link">
+                    <img src="{% static 'png/index.png' %}" class="mr-2" width="32" height="32" alt="首页图标">
+                    首页
+                </a>
+            </li>
+            <li>
+                <a href="#" class="nav-link active">
+                    <img src="{% static 'png/images.png' %}" class="mr-2" width="32" height="32" alt="所有图片图标">
+                    所有图片
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'setting' %}" class="nav-link">
+                    <img src="{% static 'png/setting.png' %}" class="mr-2" width="32" height="32" alt="回收站图标">
+                    个人资料设置
+                </a>
+            </li>
+        </ul>
+        <!-- 登出链接移到左下角 -->
+        <a href="{% url 'logout' %}" class="logout-link">
+            <img src="{% static 'png/logout.png' %}" class="mr-2" width="32" height="32" alt="登出图标">
+            登出
+        </a>
+    </nav>
+
+    <div class="content">
+        <div class="photo-list">
+            <!-- 照片列表 -->
+            {% for photo in all_photos %}
+                <div class="photo-item">
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" onclick="displayPhoto('{{ photo.image.url }}')">
+                    <div class="photo-actions">
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="photo_id" value="{{ photo.id }}">
+                            <button type="submit" name="delete" class="btn btn-outline-danger btn-sm">删除</button>
+                        </form>
+                        <button class="btn btn-outline-primary btn-sm" onclick="showEditModal('{{ photo.id }}', '{{ photo.title }}', '{{ photo.image.url }}')">编辑</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="photo-display" id="photo-display">
+            <!-- 大图显示区域 -->
+        </div>
+    </div>
+
+    <!-- Bootstrap JS 和依赖 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- JavaScript 部分 -->
+    <script>
+        // 点击照片列表中的照片时，显示该照片
+        function displayPhoto(url) {
+            var photoDisplay = document.getElementById("photo-display");
+            var img = new Image();
+            img.src = url;
+            img.alt = "Large Photo";
+            img.style.position = "relative"; /* 添加相对定位 */
+            img.onload = function() {
+                var maxWidth = window.innerWidth * 0.7;
+                var maxHeight = window.innerHeight * 0.7;
+                if (img.width > maxWidth || img.height > maxHeight) {
+                    var widthRatio = maxWidth / img.width;
+                    var heightRatio = maxHeight / img.height;
+                    var ratio = Math.min(widthRatio, heightRatio);
+                    img.width = img.width * ratio;
+                    img.height = img.height * ratio;
+                }
+                img.style.transform = 'scale(1)';
+                img.dataset.scale = 1;
+                photoDisplay.innerHTML = '';
+                photoDisplay.appendChild(img);
+
+                // 放大缩小事件
+                img.addEventListener('wheel', function(event) {
+                    event.preventDefault();
+                    var scale = Number(img.dataset.scale);
+                    if (event.deltaY < 0) {
+                        scale *= 1.1; // 放大
+                    } else {
+                        scale /= 1.1; // 缩小
+                    }
+                    img.style.transform = 'scale(' + scale + ')';
+                    img.dataset.scale = scale;
+                });
+
+                // 拖动事件
+                var isDragging = false;
+                var startX, startY;
+
+                img.addEventListener('mousedown', function(event) {
+                    if (event.button === 0) { // 仅当左键按下
+                        isDragging = true;
+                        startX = event.clientX - img.offsetLeft;
+                        startY = event.clientY - img.offsetTop;
+                        img.style.cursor = 'grabbing'; /* 修改光标样式 */
+                    }
+                });
+
+                document.addEventListener('mousemove', function(event) {
+                    if (isDragging) {
+                        var x = event.clientX - startX;
+                        var y = event.clientY - startY;
+                        img.style.left = x + 'px';
+                        img.style.top = y + 'px';
+                    }
+                });
+
+                document.addEventListener('mouseup', function() {
+                    isDragging = false;
+                    img.style.cursor = 'grab'; /* 恢复光标样式 */
+                });
+
+                // 确保在释放鼠标按钮时停止拖动
+                img.addEventListener('mouseup', function() {
+                    isDragging = false;
+                    img.style.cursor = 'grab'; /* 恢复光标样式 */
+                });
+            };
+        }
+
+        // 显示编辑模态框
+        function showEditModal(photoId, title, imageUrl) {
+            var modalHtml = `
+                <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editModalLabel">编辑照片</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="modal-body">
+                                    <input type="hidden" name="photo_id" value="${photoId}">
+                                    <div class="form-group">
+                                        <label for="title">标题</label>
+                                        <input type="text" class="form-control" id="title" name="title" value="${title}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="image">更换图片</label>
+                                        <input type="file" class="form-control-file" id="image" name="image">
+                                    </div>
+                                    <img src="${imageUrl}" alt="当前图片" class="img-fluid mt-3">
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
+                                    <button type="submit" name="edit" class="btn btn-primary">保存更改</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            $('#editModal').modal('show');
+            $('#editModal').on('hidden.bs.modal', function () {
+                document.getElementById('editModal').remove();
+            });
+        }
+    </script>
+</body>
+</html>

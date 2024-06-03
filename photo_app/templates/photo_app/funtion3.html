@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>脸部特征点标记</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden;
+        }
+        #container-wrapper {
+            display: flex;
+            transition: transform 0.3s;
+            width: 100%;
+        }
+        #upload-container {
+            flex: 1;
+            transition: transform 0.3s, width 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #processed-container {
+            flex: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            margin-left: 20px;
+        }
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            margin-top: 50px;
+            transition: transform 0.3s, box-shadow 0.3s, width 0.3s;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2rem;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #555;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .uploaded-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .uploaded-container img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-top: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .uploaded-container img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .uploaded-container a {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .uploaded-container a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .hidden {
+            display: none;
+        }
+        .show {
+            display: block;
+        }
+        #return-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #ccc;
+            color: #6c757d;
+            padding: 7px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #return-btn:hover {
+            background-color: #e2e6ea;
+            color: #343a40;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #return-btn img {
+            margin-right: 5px;
+        }
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="container-wrapper">
+        <div class="container mt-5" id="upload-container">
+            <h2>脸部特征点标记</h2>
+            <form id="upload-form" method="POST" action="{% url 'funtion3' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">图片名称:</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入图片名称" required>
+                </div>
+                <div class="form-group">
+                    <label for="image">上传图片:</label>
+                    <input type="file" class="form-control-file" id="image" name="image" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">提交</button>
+            </form>
+
+            {% if uploaded_file_url %}
+                <div class="uploaded-container mt-3" id="uploaded-container">
+                    <h3>原始图片</h3>
+                    <img src="{{ uploaded_file_url }}" class="img-fluid" alt="Uploaded Image">
+                    <form id="recognition-form" method="POST" action="{% url 'funtion3' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="uploaded_file_url" value="{{ uploaded_file_url }}">
+                        <button type="submit" class="btn btn-primary mt-3">开始识别</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="container mt-5 hidden" id="processed-container">
+            <h2>识别结果</h2>
+            <div class="row">
+{#                <div class="col-md-12">#}
+{#                    <h3>处理后的图片</h3>#}
+{#                    <img id="processed-image" src="" class="img-fluid" alt="Processed Image">#}
+{#                </div>#}
+                <div class="col-md-12 text-center">
+                    <div class="image-container">
+                        <h3>处理后的图片</h3>
+                        <img src="{{ processed_file_url }}" class="img-fluid" alt="Processed Image" id="processed-image">
+                        <a id="download-btn" class="btn btn-primary mt-3" href="#" download>下载图片</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button type="button" class="btn btn-light btn-sm mt-3" id="return-btn">
+            <img src="/media/icon/back.png" alt="Return Icon" width="20" height="20">
+            返回
+        </button>
+        <p>© 2024 智能相机. All rights reserved.</p>
+    </div>
+{#    没有改下载#}
+    <script>
+        document.getElementById('return-btn').addEventListener('click', function() {
+            window.location.href = "{% url 'index' %}";
+        });
+
+        function returnToUpload() {
+            const uploadContainer = document.getElementById('upload-container');
+            const processedContainer = document.getElementById('processed-container');
+
+            uploadContainer.style.transform = 'translateX(0)';
+            uploadContainer.style.width = '100%';
+            processedContainer.style.opacity = '0';
+            processedContainer.classList.add('hidden');
+        }
+
+        document.getElementById('recognition-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch(this.getAttribute('action'), {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                const processedContainer = document.getElementById('processed-container');
+                const processedImage = document.getElementById('processed-image');
+                const downloadBtn = document.getElementById('download-btn');
+
+                processedImage.src = data.processed_file_url;
+                downloadBtn.href = data.processed_file_url;
+
+                processedContainer.style.opacity = '1';
+                processedContainer.classList.remove('hidden');
+            })
+        });
+    </script>
+</body>
+</html>

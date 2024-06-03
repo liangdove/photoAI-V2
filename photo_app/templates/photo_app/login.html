@@ -1,0 +1,90 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{% static 'login/css/login.css' %}?v=2" rel="stylesheet"/>
+    <title>登录</title>
+    <style>
+      body {
+        background: linear-gradient(to right, #e0f7fa, #80deea);
+        color: #00796b;
+      }
+      .form-login {
+        background: rgba(255, 255, 255, 0.8);
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .form-login h3 {
+        color: #00796b;
+      }
+      .form-login .btn-primary {
+        background-color: #4fc3f7;
+        border: none;
+      }
+      .form-login .btn-primary:hover {
+        background-color: #29b6f6;
+      }
+      .form-login .form-control {
+        background: rgba(255, 255, 255, 0.7);
+        border: none;
+        color: #00796b;
+      }
+      .form-login .form-control::placeholder {
+        color: #80cbc4;
+      }
+      .form-login .form-control:focus {
+        background: rgba(255, 255, 255, 0.9);
+        color: #00796b;
+      }
+      .form-login a {
+        color: #00796b;
+      }
+      .form-login a:hover {
+        color: #004d40;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-md-6">
+          <form class="form-login" action="/login/" method="post">
+            {% if login_form.captcha.errors %}
+              <div class="alert alert-warning">{{ login_form.captcha.errors }}</div>
+            {% elif message %}
+              <div class="alert alert-warning">{{ message }}</div>
+            {% endif %}
+            {% csrf_token %}
+            <h3 class="text-center">欢迎登录</h3>
+            <div class="form-group">
+              {{ login_form.username.label_tag }}
+              {{ login_form.username }}
+            </div>
+            <div class="form-group">
+              {{ login_form.password.label_tag }}
+              {{ login_form.password }}
+            </div>
+            <div class="form-group">
+              {{ login_form.captcha.label_tag }}
+              {{ login_form.captcha }}
+            </div>
+            <div>
+              <a href="/register/" class="text-success"><ins>新用户注册</ins></a>
+              <button type="submit" class="btn btn-primary float-right">登录</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Optional JavaScript -->
+    <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+    <script src="https://cdn.bootcss.com/popper.js/1.15.0/umd/popper.js"></script>
+    <script src="https://cdn.bootcss.com/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+  </body>
+</html>

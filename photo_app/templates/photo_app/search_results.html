@@ -1,0 +1,156 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-family: 'Arial', sans-serif;
+        }
+        .content {
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 1200px;
+            margin: 40px auto;
+        }
+        .photo-list-container {
+            height: 600px;
+            overflow-y: auto;
+            width: 100%;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) #f8f9fa;
+        }
+        .photo-list-container::-webkit-scrollbar-track {
+            background-color: #f8f9fa;
+        }
+        .photo-list-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .photo-list-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .photo-list-item {
+            display: inline-block;
+            margin: 15px;
+            text-align: left;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 15px;
+            width: 300px;
+        }
+        .photo-list-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        .photo-list-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .photo-title-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 15px;
+        }
+        .photo-title {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: bold;
+        }
+        .favorite-button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: #ccc;
+            font-size: 24px;
+            transition: color 0.3s;
+            margin-left: 10px;
+        }
+        .favorite-button.favorited {
+            color: #007bff;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        #return-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #ccc;
+            color: #6c757d;
+            padding: 7px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        #return-btn:hover {
+            background-color: #e2e6ea;
+            color: #343a40;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        #return-btn img {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="content">
+    <h1>搜索结果</h1>
+    <p>搜索关键词: "{{ query }}"</p>
+    <div class="photo-list-container">
+        <ul class="no-bullets">
+            {% for photo in photos %}
+                <li class="photo-list-item">
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-list-img">
+                    <div class="photo-title-wrapper">
+                        <p class="photo-title">{{ photo.title }}</p>
+                        <button class="favorite-button">&#9733;</button>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<div class="footer">
+    <button type="button" class="btn btn-light btn-sm mt-3" id="return-btn">
+        <img src="/media/icon/back.png" alt="Return Icon" width="20" height="20">
+        返回
+    </button>
+    <p>© 2024 智能相机. All rights reserved.</p>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('.photo-list-container').on('click', '.favorite-button', function() {
+            $(this).toggleClass('favorited');
+            if ($(this).hasClass('favorited')) {
+                $(this).html('&#9733;'); // Filled star
+            } else {
+                $(this).html('&#9734;'); // Empty star
+            }
+        });
+
+        $('#return-btn').on('click', function() {
+            window.location.href = "{% url 'index' %}"; // 替换 'index' 为实际的 index 页面 URL
+        });
+    });
+</script>
+</body>
+</html>

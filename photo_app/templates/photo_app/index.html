@@ -1,0 +1,380 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航示例</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .sidebar {
+            width: 250px; /* 导航栏宽度 */
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            padding-top: 3.5rem;
+            padding-left: 0;
+            background-color: #f8f9fa; /* 淡灰色背景 */
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .logout-link {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        .navbar-brand {
+            font-size: 2rem; /* 增大字体大小 */
+            font-weight: bold;
+            color: #007bff; /* 蓝色文字 */
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 32px; /* 调整图标大小 */
+            height: 32px; /* 调整图标大小 */
+            margin-right: 8px; /* 图标与文字之间的间距 */
+        }
+        .search-box {
+            position: relative;
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        .search-box input[type="text"] {
+            padding: 10px 40px 10px 20px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+        }
+        .search-box .icon {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #aaa;
+        }
+        .main-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+        }
+        .button-group {
+            margin-bottom: 30px; /* Increased margin-bottom for more space */
+            position: relative;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 70px; /* Added gap between buttons */
+            max-width: 900px; /* Set max width to fit three buttons per row */
+        }
+        .custom-button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px; /* 适当调整内边距 */
+            font-size: 1.2rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+            background-color: #fff;
+            text-decoration: none;
+            color: #333;
+            position: relative;
+            width: 250px;
+            text-align: center; /* 确保文本居中对齐 */
+            flex-direction: column; /* Added to make sure the icon and text are centered vertically */
+        }
+
+        .custom-button img {
+            margin-bottom: 10px; /* Adjusted margin */
+            width: 30px;
+            height: 30px;
+        }
+        .custom-button:hover {
+            background-color: #f0f0f0;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: #333;
+            text-decoration: none;
+        }
+        .custom-button.ppt:hover {
+            background-color: #e0ffff; /* light yellow */
+        }
+        .custom-button.emotion-recognition:hover {
+        background-color: #d8b3ff; /* light purple */
+        }
+        .custom-button.word:hover {
+            background-color: #ffffe0; /* light blue */
+        }
+        .custom-button.effect:hover {
+            background-color: #ffe0e0; /* light pink */
+        }
+        .custom-button.digital-makeup:hover {
+            background-color: #e0ffe0; /* light green */
+        }
+        .custom-button.gender-recognition:hover {
+            background-color: #e0e0ff; /* light purple */
+        }
+        .custom-button.huanlian:hover {
+            background-color: #ffe0ff; /* light magenta */
+        }
+        .custom-button:focus, .custom-button:active {
+            color: #333;
+            text-decoration: none;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 100%;
+            font-size: 1rem;
+            background-color: #f9f9f9;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 5px;
+            overflow: hidden;
+            min-width: 220px;
+            padding: 10px 0;
+            width: 100%; /* Ensure dropdown is the same width as the button */
+            text-align: center; /* Center the text inside the dropdown */
+        }
+        .dropdown-content a {
+            padding: 10px 20px;
+            text-decoration: none;
+            display: block;
+            color: #333;
+            transition: background-color 0.3s;
+        }
+        .dropdown-content a:hover {
+            background-color: #f1f1f1;
+        }
+        .custom-button:hover .dropdown-content {
+            display: block;
+        }
+        .triangle {
+            margin-left: auto;
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #333;
+            transition: transform 0.3s;
+        }
+        .custom-button:hover .triangle {
+            transform: rotate(180deg);
+        }
+        .photo-list-container {
+            height: 400px;
+            overflow-y: auto;
+            width: 100%;
+            margin-left: -50px;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 0, 0, 0.2) #f8f9fa;
+        }
+        .photo-list-container::-webkit-scrollbar-track {
+            background-color: #f8f9fa;
+        }
+        .photo-list-container::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            width: 15px;
+        }
+        .photo-list-container::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.4);
+        }
+        .photo-list-item {
+            display: inline-block;
+            margin: 10px;
+            text-align: left;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 10px;
+            width: 250px; /* Adjusted width */
+        }
+        .photo-list-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+        .photo-list-img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+        .photo-title-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+        }
+        .photo-title {
+            font-size: 1rem;
+            color: #333;
+            display: inline-block;
+        }
+        .favorite-button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 20px; /* Increased size */
+            transition: color 0.3s;
+            margin-left: 10px;
+        }
+        .favorite-button.favorited {
+            color: blue;
+        }
+        .recent-text {
+            margin-top: 100px;
+            font-size: 1rem;
+            color: #666666;
+        }
+        @media (max-width: 768px) {
+            .content {
+                margin-left: 0;
+            }
+            .photo-list-container {
+                width: 100%;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<nav class="sidebar d-flex flex-column flex-shrink-0 p-3 bg-light">
+    <div class="navbar-brand">
+        <img src="{% static 'png/tourism_strategy.png' %}" alt="智能相机图标">
+        <span>智能相机</span>
+    </div>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <span class="nav-link active">
+                <img src="{% static 'png/index.png' %}" class="mr-2" width="32" height="32" alt="首页图标">
+                首页
+            </span>
+        </li>
+        <li>
+            <a href="{% url 'image' %}" class="nav-link">
+                <img src="{% static 'png/images.png' %}" class="mr-2" width="32" height="32" alt="所有图片图标">
+                所有图片
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'setting' %}" class="nav-link">
+                <img src="{% static 'png/setting.png' %}" class="mr-2" width="32" height="32" alt="回收站图标">
+                个人资料设置
+            </a>
+        </li>
+    </ul>
+    <!-- 登出链接移到左下角 -->
+    <a href="{% url 'logout' %}" class="logout-link">
+        <img src="{% static 'png/logout.png' %}" class="mr-2" width="32" height="32" alt="登出图标">
+        登出
+    </a>
+</nav>
+
+<div class="content">
+    <div class="search-box">
+        <form action="{% url 'search_photos' %}" method="GET">
+            <input id="search-input" name="query" type="text" placeholder="搜索...">
+            <span class="icon">&#128269;</span> <!-- Magnifying glass icon -->
+        </form>
+    </div>
+
+    <div id="home-content" class="tab-pane active">
+        <p class="main-title">首页</p>
+    </div>
+    <div class="button-group">
+        <div class="custom-button ppt">
+            <img src="/media/icon/face_recongination.png" alt="PPT Icon">
+            <span>人脸识别</span>
+            <div class="triangle"></div>
+            <div class="dropdown-content">
+                <a href="image_recognition">图片识别</a>
+                <a href="face_recognition">视频识别</a>
+            </div>
+        </div>
+        <a href="contour_identification" class="custom-button word">
+            <img src="/media/icon/outline.png" alt="Word Icon">
+            轮廓标识
+        </a>
+        <a href="funtion3" class="custom-button emotion-recognition">
+            <img src="/media/icon/funtion3.png" alt="Emotion Recognition Icon">
+            特征标记
+        </a>
+        <a href="funtion2" class="custom-button gender-recognition">
+            <img src="/media/icon/caijian.png" alt="Gender Recognition Icon">
+            图片裁剪
+        </a>
+        <a href="huanlian" class="custom-button huanlian">
+            <img src="/media/icon/huanlian.png" alt="Emotion Recognition Icon">
+            AI换脸
+        </a>
+
+        <div class="custom-button ppt">
+            <img src="/media/icon/meiyan.png" alt="PPT Icon">
+            <span>一键美颜</span>
+            <div class="triangle"></div>
+            <div class="dropdown-content">
+                <a href="funtion1">提亮红唇</a>
+                <a href="meiyan2">祛痘美白</a>
+            </div>
+        </div>
+        <a href="digital_makeup" class="custom-button digital-makeup">
+            <img src="/media/icon/makeUp.png" alt="Digital Makeup Icon">
+            数字化妆
+        </a>
+        <div class="custom-button ppt">
+            <img src="/media/icon/katong.png" alt="PPT Icon">
+            <span>卡通形象</span>
+            <div class="triangle"></div>
+            <div class="dropdown-content">
+                <a href="katong">日系风</a>
+                <a href="katong2">手绘风</a>
+            </div>
+        </div>
+        <a href="shoushi" class="custom-button gender-recognition">
+            <img src="/media/icon/shoushi.png" alt="Gender Recognition Icon">
+            手势识别
+        </a>
+
+
+    </div>
+    <p class="recent-text">最近</p>
+    <div class="photo-list-container">
+    <ul class="no-bullets">
+        {% for photo in photos_reversed %}
+            <li class="photo-list-item">
+                {% if photo.image %}
+                    <img src="{{ photo.image.url }}" alt="{{ photo.title }}" class="photo-list-img">
+                {% else %}
+                    <p>最近没有照片</p>
+                {% endif %}
+                <div class="photo-title-wrapper">
+                    <p class="photo-title">{{ photo.title }}</p>
+                    <button class="favorite-button">&#9733;</button>
+                </div>
+            </li>
+        {% endfor %}
+        </ul>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function(){
+        $('.photo-list-container').on('click', '.favorite-button', function() {
+            $(this).toggleClass('favorited');
+        });
+    });
+</script>
+</body>
+</html>

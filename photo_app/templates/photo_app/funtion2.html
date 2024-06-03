@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>裁剪</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #fileInputLabel {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        #fileInputLabel:hover {
+            background-color: #45a049;
+        }
+
+        #imageInput {
+            display: none;
+        }
+
+        #cropBtn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        #cropBtn:hover {
+            background-color: #45a049;
+        }
+
+        #returnBtn {
+            margin-top: 20px;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+        }
+
+        #returnBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #cropperContainer, #croppedImageContainer {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #fff;
+        }
+
+        #imageToCrop, #croppedImage {
+            max-width: 100%;
+        }
+
+        #container {
+            display: flex;
+            width: 100%;
+            max-width: 1200px;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <label for="imageInput" id="fileInputLabel">选择文件</label>
+    <input type="file" id="imageInput">
+    <div id="container">
+        <div id="cropperContainer">
+            <img id="imageToCrop" style="display: none;">
+        </div>
+        <div id="croppedImageContainer">
+            <img id="croppedImage" alt="Cropped Image" style="display: none;">
+        </div>
+    </div>
+    <div>
+        <button id="cropBtn">裁剪图片</button>
+    </div>
+    <a id="returnBtn" href={% url 'index' %}>返回首页</a>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var cropper;
+
+            $('#imageInput').change(function(event){
+                var files = event.target.files;
+                var image = files[0];
+                var reader = new FileReader();
+                reader.onload = function(event){
+                    $('#imageToCrop').attr('src', event.target.result);
+                    $('#imageToCrop').show();
+
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+
+                    cropper = new Cropper(document.getElementById('imageToCrop'), {
+                        aspectRatio: NaN, // Free aspect ratio
+                        viewMode: 2,
+                        background: false,
+                        zoomable: true,
+                        autoCropArea: 0.8, // Larger cropping area
+                    });
+                };
+                reader.readAsDataURL(image);
+            });
+
+            $('#cropBtn').click(function(){
+                if (!cropper) return;
+
+                var croppedCanvas = cropper.getCroppedCanvas({
+                    width: 500, // Set the cropped image width
+                    height: 500 // Set the cropped image height
+                });
+                var croppedImage = croppedCanvas.toDataURL('image/png');
+
+                // Display cropped image on the page
+                $('#croppedImage').attr('src', croppedImage);
+                $('#croppedImage').show();
+            });
+        });
+    </script>
+</body>
+</html>

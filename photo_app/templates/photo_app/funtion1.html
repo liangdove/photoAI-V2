@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一键美颜</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            font-family: 'Arial', sans-serif;
+            overflow-x: hidden; /* 防止出现水平滚动条 */
+        }
+        #container-wrapper {
+            display: flex;
+            transition: transform 0.3s;
+            width: 100%;
+        }
+        #upload-container {
+            flex: 1;
+            transition: transform 0.3s, width 0.3s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        #processed-container {
+            flex: 1;
+            opacity: 0;
+            transition: opacity 0.3s;
+            margin-left: 20px;
+        }
+        .container {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            margin-top: 50px;
+            transition: transform 0.3s, box-shadow 0.3s, width 0.3s;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2rem;
+        }
+        .form-group label {
+            font-weight: bold;
+            color: #555;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            font-size: 1.1rem;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+        .uploaded-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .uploaded-container img {
+            max-width: 100%;
+            height: auto;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-top: 10px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .uploaded-container img:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .uploaded-container a {
+            color: #007bff;
+            font-weight: bold;
+        }
+        .uploaded-container a:hover {
+            text-decoration: underline;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+        }
+        .hidden {
+            display: none;
+        }
+        .show {
+            display: block;
+        }
+        #return-btn {
+            background-color: #f8f9fa;
+            border: 2px solid #ccc; /* Light gray border */
+            color: #6c757d; /* Light gray color */
+            padding: 7px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            font-size: 1rem; /* Increased font size */
+            display: inline-flex; /* Center icon and text */
+            align-items: center; /* Center icon and text */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Shadow effect */
+        }
+
+        #return-btn:hover {
+            background-color: #e2e6ea; /* Slightly darker gray on hover */
+            color: #343a40; /* Dark gray color on hover */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+        }
+
+        #return-btn img {
+            margin-right: 5px; /* Margin between icon and text */
+        }
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="container-wrapper">
+        <div class="container mt-5" id="upload-container">
+            <h2>一键美颜</h2>
+            <form id="upload-form" method="POST" action="{% url 'funtion1' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="username">图片名称:</label>
+                    <input type="text" class="form-control" id="username" name="username" placeholder="请输入图片名称" required>
+                </div>
+                <div class="form-group">
+                    <label for="image">上传图片:</label>
+                    <input type="file" class="form-control-file" id="image" name="image" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">提交</button>
+            </form>
+
+            {% if uploaded_file_url %}
+                <div class="uploaded-container mt-3" id="uploaded-container">
+                    <h3>原始图片</h3>
+                    <img src="{{ uploaded_file_url }}" class="img-fluid" alt="Uploaded Image">
+                    <form id="recognition-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="uploaded_file_url" value="{{ uploaded_file_url }}">
+                        <button type="button" class="btn btn-primary mt-3" id="start-recognition-btn">开始识别</button>
+                    </form>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="container mt-5 hidden" id="processed-container">
+            <h2>处理结果</h2>
+            <div class="row">
+                <div class="col-md-12 text-center">
+                    <div class="image-container">
+                        <h3>处理后的图片</h3>
+                        <img src="{{ processed_file_url }}" class="img-fluid" alt="Processed Image" id="processed-image">
+                        <a id="download-btn" class="btn btn-primary mt-3" href="#" download>下载图片</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <button type="button" class="btn btn-light btn-sm mt-3" id="return-btn">
+            <img src="/media/icon/back.png" alt="Return Icon" width="20" height="20">
+            返回
+        </button>
+        <p>© 2024 智能相机. All rights reserved.</p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#start-recognition-btn').on('click', function() {
+                var form = $('#recognition-form');
+                var data = form.serialize();
+
+                $.ajax({
+                    url: "{% url 'funtion1' %}",
+                    method: 'POST',
+                    data: data,
+                    beforeSend: function(xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function(response) {
+                        console.log(response.processed_file_url);  // 打印路径以调试
+                        $('#processed-image').attr('src', response.processed_file_url);
+                        $('#download-btn').attr('href', response.processed_file_url);
+                        $('#upload-container').css({
+                            'transform': 'translateX(0%)',
+                            'width': '50%'
+                        });
+                        $('#processed-container').removeClass('hidden').css('opacity', '1');
+                    },
+                    error: function(xhr, status, error) {
+                        console.log(xhr.responseText);  // 输出错误信息以调试
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        $('#return-btn').on('click', function() {
+        window.location.href = "{% url 'index' %}"; // 替换 'index' 为实际的 index 页面 URL
+    });
+
+    </script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>导航示例</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* CSS 样式部分 */
+        .sidebar {
+            width: 250px; /* 导航栏宽度 */
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            padding-top: 3.5rem;
+            padding-left: 0;
+            background-color: #f8f9fa; /* 淡灰色背景 */
+        }
+        .content {
+            margin-left: 250px; /* 侧边栏宽度 */
+            padding: 20px;
+        }
+        @media (max-width: 768px) {
+            .content {
+                margin-left: 0;
+            }
+        }
+        .logout-link {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+        }
+        .navbar-brand {
+            font-size: 2rem; /* 增大字体大小 */
+            font-weight: bold;
+            color: #007bff; /* 蓝色文字 */
+            display: flex;
+            align-items: center;
+        }
+        .navbar-brand img {
+            width: 32px; /* 调整图标大小 */
+            height: 32px; /* 调整图标大小 */
+            margin-right: 8px; /* 图标与文字之间的间距 */
+        }
+        .form-group label {
+            font-weight: bold;
+        }
+        .form-control {
+            border-radius: 0.25rem;
+            border: 1px solid #ced4da;
+            box-shadow: none;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+        .card {
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .card-header {
+            background-color: #007bff;
+            color: #fff;
+            border-bottom: none;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+        }
+        .card-body {
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+
+    {% load static %} <!-- 加载静态文件模板标记 -->
+
+    <nav class="sidebar d-flex flex-column flex-shrink-0 p-3 bg-light">
+    <div class="navbar-brand">
+        <img src="{% static 'png/tourism_strategy.png' %}" alt="智能相机图标">
+        <span>智能相机</span>
+    </div>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+        <li class="nav-item">
+            <a href="{% url 'index' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                <img src="{% static 'png/index.png' %}" class="mr-2" width="32" height="32" alt="首页图标">
+                首页
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'image' %}" class="nav-link {% if request.path == '/image/' %}active{% endif %}">
+                <img src="{% static 'png/images.png' %}" class="mr-2" width="32" height="32" alt="所有图片图标">
+                所有图片
+            </a>
+        </li>
+        <li>
+            <a href="{% url 'setting' %}" class="nav-link {% if request.path == '/setting/' %}active{% endif %}">
+                <img src="{% static 'png/setting.png' %}" class="mr-2" width="32" height="32" alt="回收站图标">
+                个人资料设置
+            </a>
+        </li>
+    </ul>
+    <!-- 登出链接移到左下角 -->
+    <a href="{% url 'logout' %}" class="logout-link">
+        <img src="{% static 'png/logout.png' %}" class="mr-2" width="32" height="32" alt="登出图标">
+        登出
+    </a>
+</nav>
+
+
+    <div class="content">
+        <div class="card">
+            <div class="card-header">
+                用户信息
+            </div>
+            <div class="card-body">
+                <p><strong>用户名:</strong> {{ request.session.user_name }}</p>
+                <p><strong>邮箱:</strong> {{ request.session.user_email }}</p>
+                <p><strong>性别:</strong>
+                    {% if request.session.user_sex == 'male' %}男
+                    {% elif request.session.user_sex == 'female' %}女
+                    {% else %}未知
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                修改用户信息
+            </div>
+            <div class="card-body">
+                <!-- 显示错误信息 -->
+                {% if messages %}
+                <div class="alert alert-danger" role="alert">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="username">用户名:</label>
+                        <input type="text" id="username" name="username" class="form-control" value="{{ request.session.user_name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">邮箱:</label>
+                        <input type="email" id="email" name="email" class="form-control" value="{{ request.session.user_email }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="sex">性别:</label>
+                        <select id="sex" name="sex" class="form-control">
+                            <option value="male" {% if request.session.user_sex == '男' %}selected{% endif %}>男</option>
+                            <option value="female" {% if request.session.user_sex == '女' %}selected{% endif %}>女</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">保存更改</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS 和依赖 -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
